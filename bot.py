@@ -26,7 +26,7 @@ if not REQUIRED_CHANNEL_ID:
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-# لینک کانال - درست شده
+# 👇✅ اینجا درسته: mvn_vpn (با آندرلاین)
 CHANNEL_USERNAME = "@mvn_vpn"
 CHANNEL_URL = "https://t.me/mvn_vpn"
 
@@ -45,35 +45,9 @@ async def is_member(user_id: int, context) -> bool:
         logger.error(f"Error checking membership: {e}")
         return False
 
-async def check_join_required(update: Update, context) -> bool:
-    user_id = update.effective_user.id
-    
-    if await is_member(user_id, context):
-        return True
-    
-    keyboard = [
-        [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
-        [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    await update.message.reply_text(
-        "🔒 **دسترسی محدود!** 🔒\n\n"
-        "برای استفاده از ربات **Orion**، ابتدا باید در کانال ما عضو شوید.\n\n"
-        f"📢 **کانال:** {CHANNEL_USERNAME}\n"
-        "🎁 **مزیت عضویت:**\n"
-        "• کانفیگ و پروکسی رایگان\n"
-        "• به‌روزترین سرورها\n"
-        "• لینک مستقیم و بدون فیلتر\n\n"
-        "👇 **روی دکمه زیر بزنید و عضو شوید** 👇",
-        parse_mode='Markdown',
-        reply_markup=reply_markup
-    )
-    return False
-
 async def start(update: Update, context):
-    # چک کردن عضویت
     user_id = update.effective_user.id
+    
     if not await is_member(user_id, context):
         keyboard = [
             [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
@@ -95,7 +69,6 @@ async def start(update: Update, context):
         )
         return
     
-    # پیام خوش‌آمدگویی
     keyboard = [
         [InlineKeyboardButton("🆘 راهنما", callback_data="help")],
         [InlineKeyboardButton("📥 نحوه دریافت لینک", callback_data="tutorial")],
@@ -129,7 +102,17 @@ async def start(update: Update, context):
     )
 
 async def help_command(update: Update, context):
-    if not await check_join_required(update, context):
+    user_id = update.effective_user.id
+    if not await is_member(user_id, context):
+        keyboard = [
+            [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
+            [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(
+            "🔒 **دسترسی محدود!**\n\nبرای استفاده از راهنما، ابتدا عضو کانال شوید.",
+            reply_markup=reply_markup
+        )
         return
     
     await update.message.reply_text(
@@ -148,7 +131,17 @@ async def help_command(update: Update, context):
     )
 
 async def download_command(update: Update, context):
-    if not await check_join_required(update, context):
+    user_id = update.effective_user.id
+    if not await is_member(user_id, context):
+        keyboard = [
+            [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
+            [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(
+            "🔒 **دسترسی محدود!**\n\nبرای استفاده از ربات، ابتدا عضو کانال شوید.",
+            reply_markup=reply_markup
+        )
         return
     
     await update.message.reply_text(
@@ -162,7 +155,17 @@ async def download_command(update: Update, context):
     )
 
 async def about_command(update: Update, context):
-    if not await check_join_required(update, context):
+    user_id = update.effective_user.id
+    if not await is_member(user_id, context):
+        keyboard = [
+            [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
+            [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(
+            "🔒 **دسترسی محدود!**\n\nبرای اطلاعات بیشتر، ابتدا عضو کانال شوید.",
+            reply_markup=reply_markup
+        )
         return
     
     await update.message.reply_text(
@@ -227,7 +230,17 @@ async def button_handler(update: Update, context):
         )
 
 async def download_instagram(update: Update, context):
-    if not await check_join_required(update, context):
+    user_id = update.effective_user.id
+    if not await is_member(user_id, context):
+        keyboard = [
+            [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
+            [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(
+            "🔒 **دسترسی محدود!**\n\nبرای دانلود، ابتدا عضو کانال شوید.",
+            reply_markup=reply_markup
+        )
         return
     
     url = update.message.text.strip()
