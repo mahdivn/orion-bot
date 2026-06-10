@@ -207,7 +207,7 @@ async def download_instagram(update: Update, context):
     
     status_msg = await update.message.reply_text(
         "⏳ **در حال پردازش...**\n\n"
-        "🌌 Orion در حال شکار فایل شماست",
+        "🌌 Orion در حال یافتن فایل شماست",
         parse_mode='Markdown'
     )
     
@@ -260,7 +260,7 @@ async def download_instagram(update: Update, context):
             "⚡ **به‌روزترین سرورها | لینک مستقیم**\n\n"
             f"🔗 {CHANNEL_URL}\n"
             "━━━━━━━━━━━━━━━━━━━━\n\n"
-            "🌌 Orion | شکارچی اینستاگرام"
+            "🌌 Orion | اینستاگرام"
         )
         
         mime_type = filename.split('.')[-1].lower()
