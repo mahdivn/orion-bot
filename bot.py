@@ -16,19 +16,17 @@ logger = logging.getLogger(__name__)
 # ========== گرفتن تنظیمات از Environment Variables ==========
 TOKEN = os.getenv("BOT_TOKEN")
 REQUIRED_CHANNEL_ID = os.getenv("REQUIRED_CHANNEL_ID")
-CHANNEL_LINK = os.getenv("CHANNEL_LINK", "https://t.me/mvn_vpn")
+CHANNEL_LINK = os.getenv("CHANNEL_LINK")
 
 if not TOKEN:
     logger.error("❌ BOT_TOKEN تنظیم نشده!")
 if not REQUIRED_CHANNEL_ID:
     logger.error("❌ REQUIRED_CHANNEL_ID تنظیم نشده!")
+if not CHANNEL_LINK:
+    CHANNEL_LINK = "https://t.me/mvn_vpn"
 
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-
-# ========== فقط همینجا تنظیم کن ==========
-CHANNEL_USERNAME = "@mvn_vpn"          # ✅ درسته
-CHANNEL_URL = "https://t.me/mvn_vpn"   # ✅ درسته
 
 def is_instagram_link(url: str) -> bool:
     patterns = [
@@ -50,53 +48,61 @@ async def start(update: Update, context):
     
     if not await is_member(user_id, context):
         keyboard = [
-            [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
+            [InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/mvn_vpn")],
             [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
-            f"🔒 **برای استفاده از ربات، ابتدا عضو کانال شوید:**\n\n📢 {CHANNEL_USERNAME}",
+            "🔒 **برای استفاده از ربات، ابتدا عضو کانال شوید:**\n\n📢 @mvn_vpn",
             reply_markup=reply_markup
         )
         return
     
     keyboard = [
         [InlineKeyboardButton("🆘 راهنما", callback_data="help")],
-        [InlineKeyboardButton("📥 نحوه دریافت لینک", callback_data="tutorial")],
-        [InlineKeyboardButton("🎁 کانال ما", url=CHANNEL_URL)]
+        [InlineKeyboardButton("📥 آموزش دریافت لینک", callback_data="tutorial")],
+        [InlineKeyboardButton("🎁 کانال ما", url="https://t.me/mvn_vpn")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await update.message.reply_text(
-        f"🌌 **به Orion خوش آمدید!**\n\n"
-        f"📥 لینک اینستاگرام را بفرستید تا دانلود کنم.\n\n"
-        f"🎁 {CHANNEL_USERNAME}",
+        "🌌 **به ربات Orion خوش آمدید!**\n\n"
+        "📥 لینک اینستاگرام را بفرستید تا فایل را دانلود کنم.\n\n"
+        "🎁 @mvn_vpn",
         reply_markup=reply_markup
     )
 
 async def help_command(update: Update, context):
     user_id = update.effective_user.id
     if not await is_member(user_id, context):
-        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)]]
-        await update.message.reply_text("🔒 ابتدا عضو کانال شوید.", reply_markup=InlineKeyboardMarkup(keyboard))
+        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/mvn_vpn")]]
+        await update.message.reply_text("🔒 ابتدا عضو کانال شوید: @mvn_vpn", reply_markup=InlineKeyboardMarkup(keyboard))
         return
-    await update.message.reply_text("🆘 راهنما: لینک اینستاگرام را بفرستید.")
+    await update.message.reply_text(
+        "🆘 **راهنما:**\n"
+        "لینک اینستاگرام را بفرستید تا دانلود کنم.\n"
+        "پشتیبانی: @mvn_vpn"
+    )
 
 async def download_command(update: Update, context):
     user_id = update.effective_user.id
     if not await is_member(user_id, context):
-        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)]]
-        await update.message.reply_text("🔒 ابتدا عضو کانال شوید.", reply_markup=InlineKeyboardMarkup(keyboard))
+        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/mvn_vpn")]]
+        await update.message.reply_text("🔒 ابتدا عضو کانال شوید: @mvn_vpn", reply_markup=InlineKeyboardMarkup(keyboard))
         return
-    await update.message.reply_text("📥 لینک اینستاگرام را بفرستید.")
+    await update.message.reply_text("📥 لینک اینستاگرام را بفرستید تا دانلود کنم.")
 
 async def about_command(update: Update, context):
     user_id = update.effective_user.id
     if not await is_member(user_id, context):
-        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)]]
-        await update.message.reply_text("🔒 ابتدا عضو کانال شوید.", reply_markup=InlineKeyboardMarkup(keyboard))
+        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/mvn_vpn")]]
+        await update.message.reply_text("🔒 ابتدا عضو کانال شوید: @mvn_vpn", reply_markup=InlineKeyboardMarkup(keyboard))
         return
-    await update.message.reply_text(f"🌌 Orion\n🎁 {CHANNEL_USERNAME}")
+    await update.message.reply_text(
+        "🌌 **Orion Downloader**\n"
+        "ربات دانلود از اینستاگرام\n"
+        "🎁 @mvn_vpn"
+    )
 
 async def button_handler(update: Update, context):
     query = update.callback_query
@@ -107,22 +113,30 @@ async def button_handler(update: Update, context):
         if await is_member(user_id, context):
             await query.edit_message_text("✅ عضویت تأیید شد! حالا /start را بزنید.")
         else:
-            await query.edit_message_text("❌ هنوز عضو نشدید!", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📢 عضویت", url=CHANNEL_URL)]]))
+            await query.edit_message_text(
+                "❌ هنوز عضو نشدید!",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/mvn_vpn")]])
+            )
     elif query.data == "help":
         await query.edit_message_text("🆘 لینک اینستاگرام را بفرستید.")
     elif query.data == "tutorial":
-        await query.edit_message_text("📥 از اینستاگرام روی Copy Link بزنید و بفرستید.")
+        await query.edit_message_text(
+            "📥 **آموزش دریافت لینک:**\n"
+            "1. روی سه نقطه ⋮ بالای پست بزنید\n"
+            "2. Copy Link را انتخاب کنید\n"
+            "3. لینک را اینجا بفرستید"
+        )
 
 async def download_instagram(update: Update, context):
     user_id = update.effective_user.id
     if not await is_member(user_id, context):
-        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)]]
-        await update.message.reply_text("🔒 ابتدا عضو کانال شوید.", reply_markup=InlineKeyboardMarkup(keyboard))
+        keyboard = [[InlineKeyboardButton("📢 عضویت در کانال", url="https://t.me/mvn_vpn")]]
+        await update.message.reply_text("🔒 ابتدا عضو کانال شوید: @mvn_vpn", reply_markup=InlineKeyboardMarkup(keyboard))
         return
     
     url = update.message.text.strip()
-    if not re.match(r'(https?://)?(www\.)?instagram\.com/(p|reel|tv|stories)/.+', url):
-        await update.message.reply_text("❌ لینک اینستاگرام معتبر نیست.")
+    if not is_instagram_link(url):
+        await update.message.reply_text("❌ لینک اینستاگرام معتبر نیست.\nمثال: https://www.instagram.com/p/...")
         return
     
     status_msg = await update.message.reply_text("⏳ در حال دانلود...")
@@ -142,16 +156,13 @@ async def download_instagram(update: Update, context):
             if not filename:
                 raise Exception("فایل پیدا نشد")
         
-        # ✅ اینجا کپشن درست
+        # کپشن با لینک درست
         caption = (
-            f"✅ **دانلود شد!**\n\n"
-            f"━━━━━━━━━━━━━━━━━━━━\n"
-            f"🎁 **{CHANNEL_USERNAME}**\n"
-            f"📡 **کانال کانفیگ و پروکسی رایگان**\n"
-            f"⚡ **به‌روزترین سرورها | لینک مستقیم**\n\n"
-            f"🔗 {CHANNEL_URL}\n"
-            f"━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"🌌 **Orion**"
+            "✅ **دانلود شد!**\n\n"
+            "🎁 **کانال کانفیگ و پروکسی رایگان:**\n"
+            "📢 @mvn_vpn\n\n"
+            "🔗 https://t.me/mvn_vpn\n\n"
+            "🌌 Orion"
         )
         
         with open(filename, 'rb') as f:
