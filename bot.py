@@ -26,11 +26,9 @@ if not REQUIRED_CHANNEL_ID:
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-# لینک کانال (برای استفاده در جاهای مختلف)
 CHANNEL_USERNAME = "@mvn_vpn"
 CHANNEL_URL = "https://t.me/mvn_vpn"
 
-# ========== توابع کمکی ==========
 def is_instagram_link(url: str) -> bool:
     patterns = [
         r'(https?://)?(www\.)?instagram\.com/(p|reel|tv|stories)/.+',
@@ -59,21 +57,45 @@ async def check_join_required(update: Update, context) -> bool:
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await update.message.reply_text(
-        "🔒 **برای استفاده از ربات، ابتدا عضو کانال ما شوید!**\n\n"
-        f"🎁 **کانال {CHANNEL_USERNAME}**\n"
-        "📡 **دریافت کانفیگ و پروکسی رایگان**\n"
-        "⚡ **به‌روزترین سرورها | لینک مستقیم**\n\n"
-        "👇 **روی دکمه زیر کلیک کنید** 👇",
+        "🔒 **دسترسی محدود!** 🔒\n\n"
+        "برای استفاده از ربات **Orion**، ابتدا باید در کانال ما عضو شوید.\n\n"
+        f"📢 **کانال:** {CHANNEL_USERNAME}\n"
+        "🎁 **مزیت عضویت:**\n"
+        "• کانفیگ و پروکسی رایگان\n"
+        "• به‌روزترین سرورها\n"
+        "• لینک مستقیم و بدون فیلتر\n\n"
+        "👇 **روی دکمه زیر بزنید و عضو شوید** 👇",
         parse_mode='Markdown',
         reply_markup=reply_markup
     )
     return False
 
-# ========== دستورات ربات ==========
 async def start(update: Update, context):
-    if not await check_join_required(update, context):
+    # چک کردن عضویت در کانال
+    user_id = update.effective_user.id
+    if not await is_member(user_id, context):
+        # اگه عضو نیست، پیام جوین اجباری نشون بده
+        keyboard = [
+            [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
+            [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await update.message.reply_text(
+            "🔒 **دسترسی محدود!** 🔒\n\n"
+            "برای استفاده از ربات **Orion**، ابتدا باید در کانال ما عضو شوید.\n\n"
+            f"📢 **کانال:** {CHANNEL_USERNAME}\n"
+            "🎁 **مزیت عضویت:**\n"
+            "• کانفیگ و پروکسی رایگان\n"
+            "• به‌روزترین سرورها\n"
+            "• لینک مستقیم و بدون فیلتر\n\n"
+            "👇 **روی دکمه زیر بزنید و عضو شوید** 👇",
+            parse_mode='Markdown',
+            reply_markup=reply_markup
+        )
         return
     
+    # اگه عضو هست، پیام خوش‌آمدگویی نشون بده
     keyboard = [
         [InlineKeyboardButton("🆘 راهنما", callback_data="help")],
         [InlineKeyboardButton("📥 نحوه دریافت لینک", callback_data="tutorial")],
@@ -83,13 +105,22 @@ async def start(update: Update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await update.message.reply_text(
-        "🌌 **به Orion خوش آمدید!**\n\n"
-        "🤖 ربات قدرتمند دانلود از اینستاگرام\n\n"
-        "📥 **کافیست لینک پست، ریلز یا استوری را بفرستید**\n"
-        "تا در سریعترین زمان دانلود شود.\n\n"
-        f"🎁 **برای دریافت کانفیگ و پروکسی رایگان:**\n"
-        f"📢 {CHANNEL_USERNAME}\n\n"
-        "✨ **سریع | ساده | حرفه‌ای**",
+        "🌌 **به Orion خوش آمدید!** 🌌\n\n"
+        "🤖 **ربات قدرتمند دانلود از اینستاگرام**\n"
+        "—————————————————————\n"
+        "📥 **قابلیت‌ها:**\n"
+        "✅ دانلود پست\n"
+        "✅ دانلود ریلز (Reels)\n"
+        "✅ دانلود استوری\n"
+        "✅ کیفیت اصلی و بالا\n"
+        "—————————————————————\n"
+        "🎯 **نحوه استفاده:**\n"
+        "فقط کافیست لینک پست، ریلز یا استوری اینستاگرام را برای من بفرستید.\n"
+        "—————————————————————\n"
+        f"🎁 **کانال کانفیگ و پروکسی رایگان:**\n"
+        f"📢 {CHANNEL_USERNAME}\n"
+        "—————————————————————\n"
+        "✨ **سریع · ساده · حرفه‌ای** ✨",
         parse_mode='Markdown',
         reply_markup=reply_markup
     )
@@ -100,14 +131,15 @@ async def help_command(update: Update, context):
     
     await update.message.reply_text(
         "🆘 **راهنمای استفاده از Orion**\n\n"
-        "📌 کافیست لینک اینستاگرام را بفرستید\n"
-        "مثال:\n"
-        "`https://www.instagram.com/p/Cxample123/`\n\n"
-        "📥 **قابلیت‌ها:**\n"
-        "✅ دانلود پست\n"
-        "✅ دانلود ریلز\n"
-        "✅ دانلود استوری\n"
-        "✅ کیفیت اصلی\n\n"
+        "📌 **مراحل کار:**\n"
+        "1️⃣ لینک پست اینستاگرام را کپی کنید\n"
+        "2️⃣ لینک را برای من بفرستید\n"
+        "3️⃣ فایل دانلود شده را دریافت کنید\n\n"
+        "📥 **لینک‌های پشتیبانی شده:**\n"
+        "• پست‌های معمولی\n"
+        "• ریلز (Reels)\n"
+        "• استوری‌ها\n\n"
+        "⚠️ **نکته:** فقط محتوای **عمومی** قابل دانلود است.\n\n"
         "⚡ فقط لینک بدهید، بقیه با من 🌌",
         parse_mode='Markdown'
     )
@@ -122,7 +154,7 @@ async def download_command(update: Update, context):
         "2️⃣ روی سه نقطه ⋮ بزنید\n"
         "3️⃣ **Copy Link** را انتخاب کنید\n"
         "4️⃣ لینک را اینجا بچسبانید و بفرستید\n\n"
-        "✨ من خودکار دانلود می‌کنم!",
+        "✨ من خودکار دانلود می‌کنم و برات می‌فرستم!",
         parse_mode='Markdown'
     )
 
@@ -132,10 +164,11 @@ async def about_command(update: Update, context):
     
     await update.message.reply_text(
         "🌌 **درباره Orion**\n\n"
-        "🆔 نام: Orion Downloader\n"
-        "📅 نسخه: 3.0.0\n"
-        "💻 ساخته شده با: Python + yt-dlp\n\n"
-        "🎁 **کانال ما:**\n"
+        "🆔 **نام:** Orion Downloader\n"
+        "📅 **نسخه:** 3.0.0\n"
+        "💻 **ساخته شده با:** Python + yt-dlp\n\n"
+        "🎯 **هدف:** سریع‌ترین ربات دانلود از اینستاگرام\n\n"
+        f"🎁 **کانال ما:**\n"
         f"{CHANNEL_USERNAME}\n"
         f"{CHANNEL_URL}\n\n"
         "⭐ اگر راضی هستید، ما را معرفی کنید!",
@@ -150,11 +183,10 @@ async def button_handler(update: Update, context):
         user_id = query.from_user.id
         if await is_member(user_id, context):
             await query.edit_message_text(
-                "✅ **عضویت شما تایید شد!**\n\n"
+                "✅ **عضویت شما تأیید شد!**\n\n"
                 "🎉 به جمع ما خوش آمدید\n"
                 "اکنون می‌توانید از ربات استفاده کنید.\n\n"
-                f"📢 {CHANNEL_USERNAME}\n"
-                "🌌 Orion در خدمت شماست",
+                "🌌 **دستور /start را بزنید تا ربات را استارت کنید**",
                 parse_mode='Markdown'
             )
         else:
@@ -170,22 +202,25 @@ async def button_handler(update: Update, context):
     
     elif query.data == "help":
         await query.edit_message_text(
-            "🆘 **راهنمای استفاده**\n\n"
-            "📌 لینک اینستاگرام را بفرستید\n"
-            "مثال:\n"
-            "`https://www.instagram.com/p/Cxample123/`\n\n"
-            "✅ قابلیت‌ها:\n"
-            "• دانلود پست\n"
-            "• دانلود ریلز\n"
-            "• دانلود استوری",
+            "🆘 **راهنمای استفاده از Orion**\n\n"
+            "📌 **مراحل کار:**\n"
+            "1️⃣ لینک پست اینستاگرام را کپی کنید\n"
+            "2️⃣ لینک را برای من بفرستید\n"
+            "3️⃣ فایل دانلود شده را دریافت کنید\n\n"
+            "📥 **لینک‌های پشتیبانی شده:**\n"
+            "• پست‌های معمولی\n"
+            "• ریلز (Reels)\n"
+            "• استوری‌ها\n\n"
+            "⚠️ فقط محتوای **عمومی** قابل دانلود است.",
             parse_mode='Markdown'
         )
     elif query.data == "tutorial":
         await query.edit_message_text(
-            "📥 **آموزش گرفتن لینک**\n\n"
-            "1️⃣ روی سه نقطه ⋮ بزنید\n"
-            "2️⃣ Copy Link را انتخاب کنید\n"
-            "3️⃣ لینک را بفرستید\n\n"
+            "📥 **آموزش گرفتن لینک از اینستاگرام**\n\n"
+            "1️⃣ روی سه نقطه ⋮ بالای پست بزنید\n"
+            "2️⃣ گزینه **Copy Link** را انتخاب کنید\n"
+            "3️⃣ برگردید به اینجا و لینک را بچسبانید\n"
+            "4️⃣ بفرستید برای من!\n\n"
             "⚠️ فقط محتوای **عمومی** قابل دانلود است.",
             parse_mode='Markdown'
         )
@@ -200,14 +235,15 @@ async def download_instagram(update: Update, context):
         await update.message.reply_text(
             "❌ **لینک معتبر نیست**\n\n"
             "📌 فقط لینک اینستاگرام ارسال کنید\n"
-            "`https://www.instagram.com/p/...`",
+            "مثال:\n"
+            "`https://www.instagram.com/p/Cxample123/`",
             parse_mode='Markdown'
         )
         return
     
     status_msg = await update.message.reply_text(
         "⏳ **در حال پردازش...**\n\n"
-        "🌌 Orion در حال یافتن فایل شماست",
+        "🌌 Orion در حال یافتن فایل شماست 🚀",
         parse_mode='Markdown'
     )
     
@@ -248,7 +284,8 @@ async def download_instagram(update: Update, context):
             return
         
         await status_msg.edit_text(
-            "📤 **در حال ارسال به تلگرام...**",
+            "📤 **در حال ارسال به تلگرام...**\n\n"
+            "✈️ لحظاتی دیگر ارسال می‌شود",
             parse_mode='Markdown'
         )
         
@@ -260,7 +297,7 @@ async def download_instagram(update: Update, context):
             "⚡ **به‌روزترین سرورها | لینک مستقیم**\n\n"
             f"🔗 {CHANNEL_URL}\n"
             "━━━━━━━━━━━━━━━━━━━━\n\n"
-            "🌌 Orion | اینستاگرام"
+            "🌌 **Orion** | اینستاگرام"
         )
         
         mime_type = filename.split('.')[-1].lower()
@@ -285,18 +322,17 @@ async def download_instagram(update: Update, context):
         logger.error(f"Error: {e}")
         await status_msg.edit_text(
             "❌ **خطا در دانلود**\n\n"
-            "📌 دلایل احتمالی:\n"
-            "• لینک خصوصی است\n"
-            "• لینک نامعتبر است\n"
-            "• محدودیت اینستاگرام\n\n"
-            "✨ لینک دیگری امتحان کنید",
+            "📌 **دلایل احتمالی:**\n"
+            "• لینک خصوصی است (پیج خصوصی)\n"
+            "• لینک نامعتبر یا حذف شده\n"
+            "• اینستاگرام محدودیت ایجاد کرده\n\n"
+            "✨ یک لینک دیگر امتحان کنید.",
             parse_mode='Markdown'
         )
 
-# ========== اجرای اصلی ==========
 def main():
     if not TOKEN:
-        logger.error("❌ توکن پیدا نشد!")
+        logger.error("❌ توکن پیدا نشد! متغیر BOT_TOKEN را در رندر تنظیم کنید.")
         return
     
     app = Application.builder().token(TOKEN).build()
@@ -309,7 +345,7 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, download_instagram))
     
     logger.info("🌌 Orion Bot is running...")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    app.run_polling()
 
 if __name__ == "__main__":
     main()
