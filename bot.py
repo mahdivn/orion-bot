@@ -71,10 +71,10 @@ async def check_join_required(update: Update, context) -> bool:
     return False
 
 async def start(update: Update, context):
-    # چک کردن عضویت در کانال
     user_id = update.effective_user.id
+    
+    # اگه عضو نیست -> پیام جوین اجباری
     if not await is_member(user_id, context):
-        # اگه عضو نیست، پیام جوین اجباری نشون بده
         keyboard = [
             [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
             [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
@@ -95,7 +95,7 @@ async def start(update: Update, context):
         )
         return
     
-    # اگه عضو هست، پیام خوش‌آمدگویی نشون بده
+    # اگه عضو هست -> پیام خوش‌آمدگویی با دکمه‌ها
     keyboard = [
         [InlineKeyboardButton("🆘 راهنما", callback_data="help")],
         [InlineKeyboardButton("📥 نحوه دریافت لینک", callback_data="tutorial")],
@@ -105,22 +105,25 @@ async def start(update: Update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await update.message.reply_text(
-        "🌌 **به Orion خوش آمدید!** 🌌\n\n"
+        "🌌✨ **به ربات Orion خوش آمدید!** ✨🌌\n\n"
+        "═══════════════════════════\n"
         "🤖 **ربات قدرتمند دانلود از اینستاگرام**\n"
-        "—————————————————————\n"
-        "📥 **قابلیت‌ها:**\n"
-        "✅ دانلود پست\n"
+        "═══════════════════════════\n\n"
+        "📥 **قابلیت‌های من:**\n"
+        "✅ دانلود پست‌های اینستاگرام\n"
         "✅ دانلود ریلز (Reels)\n"
-        "✅ دانلود استوری\n"
-        "✅ کیفیت اصلی و بالا\n"
-        "—————————————————————\n"
+        "✅ دانلود استوری‌ها\n"
+        "✅ کیفیت اصلی و بدون کاهش\n"
+        "✅ سرعت بالا و رایگان\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
         "🎯 **نحوه استفاده:**\n"
-        "فقط کافیست لینک پست، ریلز یا استوری اینستاگرام را برای من بفرستید.\n"
-        "—————————————————————\n"
+        "🔹 فقط کافیست لینک پست، ریلز یا استوری اینستاگرام را برای من بفرستید\n"
+        "🔹 من در سریع‌ترین زمان فایل را دانلود و برای شما ارسال می‌کنم\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
         f"🎁 **کانال کانفیگ و پروکسی رایگان:**\n"
-        f"📢 {CHANNEL_USERNAME}\n"
-        "—————————————————————\n"
-        "✨ **سریع · ساده · حرفه‌ای** ✨",
+        f"📢 {CHANNEL_USERNAME}\n\n"
+        "✨ **سریع · ساده · حرفه‌ای** ✨\n\n"
+        "👇 **از دکمه‌های زیر استفاده کنید** 👇",
         parse_mode='Markdown',
         reply_markup=reply_markup
     )
@@ -184,16 +187,15 @@ async def button_handler(update: Update, context):
         if await is_member(user_id, context):
             await query.edit_message_text(
                 "✅ **عضویت شما تأیید شد!**\n\n"
-                "🎉 به جمع ما خوش آمدید\n"
-                "اکنون می‌توانید از ربات استفاده کنید.\n\n"
+                "🎉 به جمع ما خوش آمدید\n\n"
                 "🌌 **دستور /start را بزنید تا ربات را استارت کنید**",
                 parse_mode='Markdown'
             )
         else:
             await query.edit_message_text(
                 "❌ **هنوز عضو کانال نشده‌اید!**\n\n"
-                "🔰 روی دکمه زیر بزنید و عضو شوید\n"
-                f"🎁 {CHANNEL_USERNAME}\n\n"
+                "🔰 روی دکمه زیر بزنید و عضو شوید\n\n"
+                f"🎁 **کانال:** {CHANNEL_USERNAME}\n\n"
                 "👇👇👇",
                 reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)]
@@ -332,7 +334,7 @@ async def download_instagram(update: Update, context):
 
 def main():
     if not TOKEN:
-        logger.error("❌ توکن پیدا نشد! متغیر BOT_TOKEN را در رندر تنظیم کنید.")
+        logger.error("❌ توکن پیدا نشد!")
         return
     
     app = Application.builder().token(TOKEN).build()
