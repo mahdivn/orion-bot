@@ -45,10 +45,35 @@ async def is_member(user_id: int, context) -> bool:
         logger.error(f"Error checking membership: {e}")
         return False
 
-async def start(update: Update, context):
+async def check_join_required(update: Update, context) -> bool:
     user_id = update.effective_user.id
     
-    # اگه عضو نیست -> پیام جوین اجباری
+    if await is_member(user_id, context):
+        return True
+    
+    keyboard = [
+        [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
+        [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    await update.message.reply_text(
+        "🔒 **دسترسی محدود!** 🔒\n\n"
+        "برای استفاده از ربات **Orion**، ابتدا باید در کانال ما عضو شوید.\n\n"
+        f"📢 **کانال:** {CHANNEL_USERNAME}\n"
+        "🎁 **مزیت عضویت:**\n"
+        "• کانفیگ و پروکسی رایگان\n"
+        "• به‌روزترین سرورها\n"
+        "• لینک مستقیم و بدون فیلتر\n\n"
+        "👇 **روی دکمه زیر بزنید و عضو شوید** 👇",
+        parse_mode='Markdown',
+        reply_markup=reply_markup
+    )
+    return False
+
+async def start(update: Update, context):
+    # چک کردن عضویت
+    user_id = update.effective_user.id
     if not await is_member(user_id, context):
         keyboard = [
             [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
@@ -70,7 +95,7 @@ async def start(update: Update, context):
         )
         return
     
-    # اگه عضو هست -> پیام خوش‌آمدگویی
+    # پیام خوش‌آمدگویی
     keyboard = [
         [InlineKeyboardButton("🆘 راهنما", callback_data="help")],
         [InlineKeyboardButton("📥 نحوه دریافت لینک", callback_data="tutorial")],
@@ -80,7 +105,7 @@ async def start(update: Update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     await update.message.reply_text(
-        "🌌 **به ربات Orion خوش آمدید!** 🌌\n\n"
+        "🌌✨ **به ربات Orion خوش آمدید!** ✨🌌\n\n"
         "═══════════════════════════\n"
         "🤖 **ربات قدرتمند دانلود از اینستاگرام**\n"
         "═══════════════════════════\n\n"
@@ -88,7 +113,8 @@ async def start(update: Update, context):
         "✅ دانلود پست‌های اینستاگرام\n"
         "✅ دانلود ریلز (Reels)\n"
         "✅ دانلود استوری‌ها\n"
-        "✅ کیفیت اصلی و بدون کاهش\n\n"
+        "✅ کیفیت اصلی و بدون کاهش\n"
+        "✅ سرعت بالا و رایگان\n\n"
         "━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
         "🎯 **نحوه استفاده:**\n"
         "🔹 فقط کافیست لینک پست، ریلز یا استوری اینستاگرام را برای من بفرستید\n"
@@ -103,17 +129,7 @@ async def start(update: Update, context):
     )
 
 async def help_command(update: Update, context):
-    user_id = update.effective_user.id
-    if not await is_member(user_id, context):
-        keyboard = [
-            [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
-            [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text(
-            "🔒 **دسترسی محدود!**\n\nبرای استفاده از راهنما، ابتدا عضو کانال شوید.",
-            reply_markup=reply_markup
-        )
+    if not await check_join_required(update, context):
         return
     
     await update.message.reply_text(
@@ -132,17 +148,7 @@ async def help_command(update: Update, context):
     )
 
 async def download_command(update: Update, context):
-    user_id = update.effective_user.id
-    if not await is_member(user_id, context):
-        keyboard = [
-            [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
-            [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text(
-            "🔒 **دسترسی محدود!**\n\nبرای استفاده از ربات، ابتدا عضو کانال شوید.",
-            reply_markup=reply_markup
-        )
+    if not await check_join_required(update, context):
         return
     
     await update.message.reply_text(
@@ -156,17 +162,7 @@ async def download_command(update: Update, context):
     )
 
 async def about_command(update: Update, context):
-    user_id = update.effective_user.id
-    if not await is_member(user_id, context):
-        keyboard = [
-            [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
-            [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text(
-            "🔒 **دسترسی محدود!**\n\nبرای اطلاعات بیشتر، ابتدا عضو کانال شوید.",
-            reply_markup=reply_markup
-        )
+    if not await check_join_required(update, context):
         return
     
     await update.message.reply_text(
@@ -231,17 +227,7 @@ async def button_handler(update: Update, context):
         )
 
 async def download_instagram(update: Update, context):
-    user_id = update.effective_user.id
-    if not await is_member(user_id, context):
-        keyboard = [
-            [InlineKeyboardButton("📢 عضویت در کانال", url=CHANNEL_URL)],
-            [InlineKeyboardButton("✅ عضو شدم", callback_data="check_membership")]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text(
-            "🔒 **دسترسی محدود!**\n\nبرای دانلود، ابتدا عضو کانال شوید.",
-            reply_markup=reply_markup
-        )
+    if not await check_join_required(update, context):
         return
     
     url = update.message.text.strip()
@@ -304,16 +290,15 @@ async def download_instagram(update: Update, context):
             parse_mode='Markdown'
         )
         
-        # کپشن با لینک درست
         caption_text = (
             "✅ **دانلود شد!**\n\n"
             "━━━━━━━━━━━━━━━━━━━━\n"
-            "🎁 **کانال کانفیگ و پروکسی رایگان:**\n"
-            f"📢 {CHANNEL_USERNAME}\n"
+            f"🎁 **{CHANNEL_USERNAME}**\n"
+            "📡 **کانال کانفیگ و پروکسی رایگان**\n"
             "⚡ **به‌روزترین سرورها | لینک مستقیم**\n\n"
             f"🔗 {CHANNEL_URL}\n"
             "━━━━━━━━━━━━━━━━━━━━\n\n"
-            "🌌 **Orion** | اینستاگرام"
+            "🌌 **Orion**"
         )
         
         mime_type = filename.split('.')[-1].lower()
